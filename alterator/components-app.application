@@ -1,0 +1,8 @@
+[Alterator Entry]
+Type=Application
+Interface=ru.basealt.alterator.componentsApp1
+Name=componentsApp
+DisplayName=Components APp
+Comment=Alterator application for component instalation and removal
+Comment[ru]=Приложение Альтератора для установки и удаления компонент
+Exec=alterator-application-components

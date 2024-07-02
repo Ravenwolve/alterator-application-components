@@ -1,0 +1,7 @@
+[Alterator Entry]
+Type=Object
+Name=componentsApp
+DisplayName=Components App
+Comment=Alterator interface for component instalation and removal
+Comment[ru]=Интерфейс Альтератора для установки и удаления компонент
+Category=componentsCategory

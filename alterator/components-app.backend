@@ -1,0 +1,10 @@
+[Alterator Entry]
+Type = Backend
+Module = executor
+Name = componentsApp
+Interface = application1
+
+[Info]
+execute = cat /usr/share/alterator/applications/components-app.application
+stdout_bytes = enabled
+action_id = Info

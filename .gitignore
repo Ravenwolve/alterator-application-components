@@ -1,0 +1,10 @@
+.*
+!.gitignore
+!.gear
+
+build/
+CMakeLists.txt.user*
+
+*.tr.qrc
+*.qm
+*~
