@@ -2,7 +2,7 @@
 Type = Backend
 Module = executor
 Name = componentsApp
-Interface = componentsApp1
+Interface = components1
 
 [Info]
 execute = cat /usr/share/alterator/objects/components.object

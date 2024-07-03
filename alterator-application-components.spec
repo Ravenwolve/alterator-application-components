@@ -36,15 +36,21 @@ Alterator application for managing system components.
 mkdir -p %buildroot%_datadir/alterator/applications
 mkdir -p %buildroot%_datadir/alterator/objects
 mkdir -p %buildroot%_datadir/alterator/backends
+mkdir -p %buildroot%_datadir/polkit-1/actions
+mkdir -p %buildroot%_datadir/dbus-1/interfaces
 
 install -v -p -m 644 -D alterator/components.object %buildroot%_datadir/alterator/objects
 install -v -p -m 644 -D alterator/components-app.application %buildroot%_datadir/alterator/applications
 install -v -p -m 644 -D alterator/components.backend %buildroot%_datadir/alterator/backends
+install -v -p -m 644 -D setup/ru.basealt.alterator.components1.policy %buildroot%_datadir/polkit-1/actions
+install -v -p -m 644 -D setup/ru.basealt.alterator.components1.xml %buildroot%_datadir/dbus-1/interfaces
 
 %files
 %_datadir/alterator/applications/*.application
 %_datadir/alterator/backends/*.backend
 %_datadir/alterator/objects/*.object
+%_datadir/polkit-1/actions/ru.basealt.alterator.components1.policy
+%_datadir/dbus-1/interfaces/ru.basealt.alterator.components1.xml
 %_bindir/%name
 
 %changelog
