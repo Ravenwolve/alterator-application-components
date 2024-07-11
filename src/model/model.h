@@ -2,6 +2,7 @@
 #define AB_MODEL_MODEL_H
 
 #include "componentobject.h"
+#include "item.h"
 
 #include <QAbstractItemModel>
 #include <QModelIndex>
@@ -19,7 +20,7 @@ public:
 
     void rebuildModel();
     void translateModel(QString locale);
-    void setCurrentState(ComponentsState state);
+    void resetCurrentState(ComponentsState state);
     ComponentsState getCurrentState();
     QMap<QString, ComponentObject> getComponents();
     Qt::CheckState getItemCheckStateBasedOnChildren(const QStandardItem *parent);
@@ -33,6 +34,10 @@ public:
     Model &operator=(Model &&)      = delete;
 
 private:
+    Qt::CheckState resetCurrentStateInner(ModelItem *parent, ComponentsState &state);
+    void getCurrentStateInner(ModelItem *parent, ComponentsState &state);
+    void getComponentsInner(ModelItem *parent, QMap<QString, ComponentObject> &components);
+
     bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) override;
 };
 } // namespace amc::model

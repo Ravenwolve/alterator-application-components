@@ -100,22 +100,10 @@ void Controller::itemChanged(model::ModelItem *item)
 
     auto cur_state = d->m_state[item->data().value<model::ComponentObject *>()->m_id];
     bool changed   = false;
-
-    switch (item->checkState())
-    {
-    case Qt::CheckState::Checked:
-        component->setState(ComponentState::installed);
-        changed = cur_state != ComponentState::installed;
-        break;
-    case Qt::CheckState::Unchecked:
-        component->setState(ComponentState::not_installed);
-        changed = cur_state != ComponentState::not_installed;
-        break;
-    case Qt::CheckState::PartiallyChecked:
-        component->setState(ComponentState::partially_installed);
-        changed = cur_state != ComponentState::partially_installed;
-        break;
-    }
+    
+    auto componentState = static_cast<ComponentState>(item->checkState());
+    component->setState(componentState);
+    changed = cur_state != componentState;
 
     item->setBackground(changed ? QColorConstants::Svg::lightgray : QColorConstants::White);
 
@@ -165,7 +153,7 @@ void Controller::apply()
 
 void Controller::reset()
 {
-    d->m_model->setCurrentState(d->m_state);
+    d->m_model->resetCurrentState(d->m_state);
 }
 
 void Controller::ok()

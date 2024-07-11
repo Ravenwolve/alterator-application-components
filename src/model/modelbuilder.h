@@ -5,6 +5,7 @@
 #include "model/componentobject.h"
 #include "model/model.h"
 #include "model/parsers/baseobjectparser.h"
+#include "model/item.h"
 
 #include <memory>
 #include <vector>
@@ -17,12 +18,16 @@ class ModelBuilder
 public:
     ModelBuilder();
 
-    void build(amc::model::Model *model);
+    void build(Model *model);
 
 private:
+    void buildInner(ModelItem *item,
+                    std::unordered_map<QString, std::vector<std::unique_ptr<ComponentCategory>>> &categories,
+                    std::unordered_map<QString, std::vector<std::unique_ptr<ComponentObject>>> &components);
+    
     QStringList getObjectPaths();
-    std::vector<std::unique_ptr<ComponentCategory>> buildCategories();
-    std::vector<std::unique_ptr<ComponentObject>> buildObjects();
+    std::unordered_map<QString, std::vector<std::unique_ptr<ComponentCategory>>> buildCategories();
+    std::unordered_map<QString, std::vector<std::unique_ptr<ComponentObject>>> buildObjects();
     QStringList getCategoriesList();
     QString getCategoryInfo(const QString &path);
     QString getComponentInfo(const QString &path);

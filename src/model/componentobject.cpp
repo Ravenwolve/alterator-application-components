@@ -5,12 +5,12 @@
 namespace amc::model
 {
 ComponentObject::ComponentObject(const ComponentObject &component)
-    : m_category(component.m_category)
 {
     this->m_id          = component.m_id;
     this->m_displayName = component.m_displayName;
     this->m_description = component.m_description;
     this->m_comment     = component.m_comment;
+    this->m_category    = component.m_category;
 
     this->m_displayNameLocaleStorage = component.m_displayNameLocaleStorage;
     this->m_descriptionLocaleStorage = component.m_descriptionLocaleStorage;

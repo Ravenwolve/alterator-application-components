@@ -23,48 +23,68 @@ ModelBuilder::ModelBuilder()
 
 void ModelBuilder::build(Model *model)
 {
-    std::vector<std::unique_ptr<ComponentCategory>> categories = buildCategories();
-    std::vector<std::unique_ptr<ComponentObject>> components   = buildObjects();
+    auto categories = buildCategories();
+    auto components = buildObjects();
+    
+    const QString &WITHOUT_PARENT{};
 
-    for (auto &category : categories)
+    for (auto &category : categories[WITHOUT_PARENT])
     {
-        QString categoryId = category->m_id;
-        auto categoryItem  = std::make_unique<ModelItem>(std::move(category));
-
-        for (int i = 0; i < components.size(); ++i)
-        {
-            if (components[i]->m_category != categoryId)
-            {
-                continue;
-            }
-
-            auto componentItem = std::make_unique<ModelItem>(std::move(components[i]));
-            categoryItem->insertRow(categoryItem->rowCount(), componentItem.release());
-            components.erase(components.begin() + i);
-        }
-
-        // NOTE(cherniginma): don't add empty categories
-        if (categoryItem->rowCount() != 0)
+        auto categoryItem = std::make_unique<ModelItem>(std::move(category));
+        buildInner(dynamic_cast<ModelItem *>(categoryItem.get()), categories, components);
+        if (categoryItem->rowCount())
         {
             model->insertRow(model->rowCount(), categoryItem.release());
         }
     }
 
-    if (components.empty())
-    {
-        return;
-    }
-
     // NOTE(cherniginma): put the rest of components in default category
     auto defaultCategory = std::make_unique<ModelItem>(std::move(buildDefaultCategory()));
-    for (auto &component : components)
+    for (auto &component : components[WITHOUT_PARENT])
     {
         auto componentItem = std::make_unique<ModelItem>(std::move(component));
         defaultCategory->insertRow(defaultCategory->rowCount(), componentItem.release());
     }
-    model->insertRow(model->rowCount(), defaultCategory.release());
 
+    // NOTE:(sharovkv) move the components from undefined categories to default category
+    for (auto &[key, vec] : components)
+    {
+        if (categories.find(key) == categories.end())
+        {
+            for (auto &component : vec)
+            {
+                auto componentItem = std::make_unique<ModelItem>(std::move(component));
+                defaultCategory->insertRow(defaultCategory->rowCount(), componentItem.release());
+            }
+        }
+    }
+
+    model->insertRow(model->rowCount(), defaultCategory.release());
+    
     model->correctCheckItemStates();
+}
+
+void ModelBuilder::buildInner(ModelItem *item,
+                              std::unordered_map<QString, std::vector<std::unique_ptr<ComponentCategory>>> &categories,
+                              std::unordered_map<QString, std::vector<std::unique_ptr<ComponentObject>>> &components)
+{
+    const QString& parentId = item->data().value<ComponentCategory *>()->m_id;
+    
+    for (auto &category : categories[parentId])
+    {
+        auto categoryItem = std::make_unique<ModelItem>(std::move(category));
+        buildInner(dynamic_cast<ModelItem *>(categoryItem.get()), categories, components);
+        if (categoryItem->rowCount()) 
+        {
+            item->insertRow(item->rowCount(), categoryItem.release());
+        }
+    }
+    
+    for (auto& component : components[parentId])
+    {
+        auto componentItem = std::make_unique<ModelItem>(std::move(component));
+        item->insertRow(item->rowCount(), componentItem.release());
+    }
 }
 
 std::unique_ptr<ComponentCategory> ModelBuilder::buildDefaultCategory()
@@ -76,13 +96,13 @@ std::unique_ptr<ComponentCategory> ModelBuilder::buildDefaultCategory()
     return defaultCategory;
 }
 
-std::vector<std::unique_ptr<ComponentObject>> ModelBuilder::buildObjects()
+std::unordered_map<QString, std::vector<std::unique_ptr<ComponentObject>>> ModelBuilder::buildObjects()
 {
-    std::vector<std::unique_ptr<ComponentObject>> components{};
+    std::unordered_map<QString, std::vector<std::unique_ptr<ComponentObject>>> components{};
 
     QStringList objects = getObjectPaths();
 
-    for (QString &object : objects)
+    for (auto &object : objects)
     {
         QString objectInfo        = getComponentInfo(object);
         QString objectDescription = getComponentDescription(object);
@@ -99,16 +119,17 @@ std::vector<std::unique_ptr<ComponentObject>> ModelBuilder::buildObjects()
 
         if (newComponent)
         {
-            components.push_back(std::move(newComponent));
+            QString parentId = newComponent->m_category;
+            components[parentId].push_back(std::move(newComponent));
         }
     }
 
     return components;
 }
 
-std::vector<std::unique_ptr<ComponentCategory>> ModelBuilder::buildCategories()
+std::unordered_map<QString, std::vector<std::unique_ptr<ComponentCategory>>> ModelBuilder::buildCategories()
 {
-    std::vector<std::unique_ptr<ComponentCategory>> categories{};
+    std::unordered_map<QString, std::vector<std::unique_ptr<ComponentCategory>>> categories{};
 
     QStringList categoryNames = getCategoriesList();
     for (auto &categoryName : categoryNames)
@@ -126,7 +147,8 @@ std::vector<std::unique_ptr<ComponentCategory>> ModelBuilder::buildCategories()
 
         if (newCategory)
         {
-            categories.push_back(std::move(newCategory));
+            QString parentId = newCategory->m_category;
+            categories[parentId].push_back(std::move(newCategory));
         }
     }
 
@@ -170,7 +192,7 @@ std::unique_ptr<ComponentCategory> ModelBuilder::buildCategory(ObjectParserInter
     category->m_type        = object->m_type;
     category->m_displayName = object->m_displayName;
     category->m_comment     = object->m_comment;
-
+    category->m_category    = object->m_category;
     category->m_displayNameLocaleStorage = object->m_displayNameLocaleStorage;
     category->m_commentLocaleStorage     = object->m_commentLocaleStorage;
 

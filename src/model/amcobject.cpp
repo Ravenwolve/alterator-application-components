@@ -25,7 +25,7 @@ QString AMCObject::findLocale(QString locale, QMap<QString, QString> &localeStor
             return localeStorage[fullLocale];
         }
     }
-    return "";
+    return {};
 }
 
 void AMCObject::setFieldLocale(QString locale, QMap<QString, QString> &storage, QString &field)

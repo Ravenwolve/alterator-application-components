@@ -15,6 +15,7 @@ public:
 public:
     QString m_id{};   // Mandatory
     QString m_type{}; // Mandatory
+    QString m_category{};
     QString m_displayName{};
     QString m_description{};
     QString m_comment{};
@@ -24,8 +25,8 @@ public:
     QMap<QString, QString> m_commentLocaleStorage{};
 
 protected:
-    QString findLocale(QString locale, QMap<QString, QString> &localeStorage);
-    void setFieldLocale(QString locale, QMap<QString, QString> &storage, QString &field);
+    static QString findLocale(QString locale, QMap<QString, QString> &localeStorage);
+    static void setFieldLocale(QString locale, QMap<QString, QString> &storage, QString &field);
 };
 } // namespace amc::model
 

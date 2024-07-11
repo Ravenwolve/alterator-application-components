@@ -27,7 +27,6 @@ public:
     ~ComponentObject() override;
 
 public:
-    QString m_category{};
     ComponentState m_state{not_installed};
 
     std::vector<QString> m_packages{};
